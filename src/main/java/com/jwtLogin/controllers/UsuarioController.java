@@ -2,6 +2,7 @@ package com.jwtLogin.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,14 +27,14 @@ public class UsuarioController {
 	}
 	
 	@PostMapping(value = "/autenticar")
-	public JwtResponse autenticar(@RequestBody JwtRequest user) {
+	public ResponseEntity<?> authenticate(@RequestBody JwtRequest user) {
 		
-		boolean isAutenticacao = usuarioService.autenticar(user);
-		if(!isAutenticacao) {
-			throw new RuntimeException("Senha inválida");
+		try {
+			JwtResponse usuarioAutenticado = usuarioService.authenticate(user);
+			return ResponseEntity.status(HttpStatus.OK).body(usuarioAutenticado);
 		}
-		
-		String token = usuarioService.generateToken(user);
-		return new JwtResponse(user.getEmail(), token);
+		catch(RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e);
+		}
 	}
 }

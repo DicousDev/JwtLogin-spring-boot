@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -16,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.jwtLogin.dto.JwtRequest;
+import com.jwtLogin.dto.JwtResponse;
 import com.jwtLogin.entities.Usuario;
 import com.jwtLogin.repositories.UsuarioRepository;
 
@@ -27,8 +29,10 @@ import io.jsonwebtoken.SignatureAlgorithm;
 @Service
 public class UsuarioService implements UserDetailsService {
 	
-	private String expiration = "30";
-	private String secretKey = "eyJSb2xlIjoiVXNlc";
+	@Value("${spring.jwt.expiration}")
+	private String expiration;
+	@Value("${spring.jwt.secretKey}")
+	private String secretKey;
 	
 	@Autowired
 	private UsuarioRepository repository;
@@ -41,10 +45,15 @@ public class UsuarioService implements UserDetailsService {
 		repository.save(userToSave);
 	}
 	
-	public Boolean autenticar(JwtRequest user) {
-		UserDetails userDetails = loadUserByUsername(user.getEmail());
-		boolean passwordValid = passwordEncoder.matches(user.getPassword(), userDetails.getPassword());
-		return passwordValid;
+	public JwtResponse authenticate(JwtRequest user) {
+		boolean passwordValid = isPasswordValid(user.getEmail(), user.getPassword());
+		
+		if(!passwordValid) {
+			throw new RuntimeException("Senha inválida");
+		}
+		
+		String token = generateToken(user);
+		return new JwtResponse(user.getEmail(), token);
 	}
 	
 	public String generateToken(JwtRequest user) {
@@ -78,13 +87,6 @@ public class UsuarioService implements UserDetailsService {
     public String objetLoginUsuario (String token) {
         return (String) obterClaims(token).getSubject();
     }
-	
-    private Claims obterClaims (String token) throws ExpiredJwtException {
-        return Jwts.parser()
-                .setSigningKey(secretKey)
-                .parseClaimsJws(token)
-                .getBody();
-    }
 
 	@Override
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -96,4 +98,17 @@ public class UsuarioService implements UserDetailsService {
 				.roles("USER")
 				.build();
 	}
+	
+	private Boolean isPasswordValid(String username, String password) {
+		UserDetails userDetails = loadUserByUsername(username);
+		boolean passwordValid = passwordEncoder.matches(password, userDetails.getPassword());
+		return passwordValid;
+	}
+	
+    private Claims obterClaims (String token) throws ExpiredJwtException {
+        return Jwts.parser()
+                .setSigningKey(secretKey)
+                .parseClaimsJws(token)
+                .getBody();
+    }
 }
