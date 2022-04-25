@@ -8,19 +8,31 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "tb_user")
-public class User {
+public class Usuario {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	private String name;
-	private String cpf;
 	private String email;
 	private String password;
+	private String role = "USER";
 	
-	public User(String email, String password) {
+	public Usuario() {
+		role = "USER";
+	}
+	
+	public Usuario(String email, String password) {
 		this.email = email;
 		this.password = password;
+		role = "USER";
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	public String getEmail() {
