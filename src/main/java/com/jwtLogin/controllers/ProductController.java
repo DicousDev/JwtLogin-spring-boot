@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(value = "/produtos")
+@RequestMapping(value = "/products")
 @CrossOrigin
-public class ProdutoController {
+public class ProductController {
 
 	@GetMapping
 	public ResponseEntity<String> findProdutosAll() {

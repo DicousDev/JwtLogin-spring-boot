@@ -14,19 +14,19 @@ import com.jwtLogin.dto.JwtResponse;
 import com.jwtLogin.services.UsuarioService;
 
 @RestController
-@RequestMapping(value = "/users")
-public class UsuarioController {
-	
+@RequestMapping(value = "/authenticate")
+public class AuthController {
+
 	@Autowired
 	private UsuarioService usuarioService;
 
-	@PostMapping(value = "/cadastrar")
+	@PostMapping(value = "/register")
 	@ResponseStatus(HttpStatus.CREATED)
 	public void cadastrar(@RequestBody JwtRequest user) {
 		usuarioService.cadastrar(user);
 	}
 	
-	@PostMapping(value = "/autenticar")
+	@PostMapping
 	public ResponseEntity<?> authenticate(@RequestBody JwtRequest user) {
 		
 		try {
