@@ -32,30 +32,40 @@ public class UsuarioService implements UserDetailsService {
 	private JwtService jwtService;
 	
 	public void cadastrar(JwtRequest user) {
-		Usuario userToSave =  new Usuario(user.getEmail(), passwordEncoder.encode(user.getPassword()));
+		Usuario userToSave =  new Usuario(user.getName(), user.getEmail(), passwordEncoder.encode(user.getPassword()));
 		repository.save(userToSave);
 	}
 	
 	public JwtResponse authenticate(JwtRequest user) {
-		boolean passwordValid = isPasswordValid(user.getEmail(), user.getPassword());
 		
+		boolean userExists = isUserExists(user.getEmail());
+		if(!userExists) {
+			throw new RuntimeException("Usuário não encontrado");
+		}
+		
+		boolean passwordValid = isPasswordValid(user.getEmail(), user.getPassword());
 		if(!passwordValid) {
 			throw new RuntimeException("Senha inválida");
 		}
 		
+		Usuario userFound = repository.findByEmail(user.getEmail());
 		String token = jwtService.generateToken(user);
-		return new JwtResponse(user.getEmail(), token);
+		return new JwtResponse(userFound.getName(), user.getEmail(), token);
 	}
 
 	@Override
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 		Usuario user = repository.findByEmail(email);
-		
 		return User.builder()
 				.username(user.getEmail())
 				.password(user.getPassword())
 				.roles("USER")
 				.build();
+	}
+	
+	private Boolean isUserExists(String email) {
+		Usuario user = repository.findByEmail(email);
+		return user != null;
 	}
 	
 	private Boolean isPasswordValid(String username, String password) {
