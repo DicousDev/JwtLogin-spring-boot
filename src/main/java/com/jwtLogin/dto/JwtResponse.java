@@ -4,10 +4,6 @@ public class JwtResponse {
 
 	private String email;
 	private String token;
-	
-	public JwtResponse() {
-		
-	}
 
 	public JwtResponse(String email, String token) {
 		this.email = email;
@@ -18,15 +14,7 @@ public class JwtResponse {
 		return email;
 	}
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
 	public String getToken() {
 		return token;
-	}
-
-	public void setToken(String token) {
-		this.token = token;
 	}
 }
