@@ -1,6 +1,9 @@
 # Login com JWT
 
 API desenvolvida para fins didáticos para autenticação e autorização de rotas usando JWT com criptografia
+
+<img src="public/JwtLogin.gif">
+
 ## 🚀 Tecnologias
 
 - [Spring Boot](https://spring.io/)
